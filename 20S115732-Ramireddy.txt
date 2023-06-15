@@ -1,0 +1,188 @@
+import React, { useState, useEffect } from 'react';
+
+const TrainDetails = () => {
+  const [trains, setTrains] = useState([]);
+  const [newTrain, setNewTrain] = useState({
+    trainName: '',
+    trainNumber: '',
+    departureTime: {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    },
+    seatsavailable: {
+      sleeper: 0,
+      ac: 0,
+    },
+    price: {
+      sleeper: 0,
+      ac: 0,
+    },
+    delayedBy: '',
+  });
+
+  // Fetch the train details from the API
+  useEffect(() => {
+    fetchTrains();
+  }, []);
+
+  const fetchTrains = async () => {
+    try {
+      const response = await fetch('/api/trains'); // Replace with your actual API endpoint
+      const data = await response.json();
+      setTrains(data);
+    } catch (error) {
+      console.error('Error fetching trains:', error);
+    }
+  };
+
+  const createTrain = async () => {
+    try {
+      const response = await fetch('/api/trains', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTrain),
+      });
+      if (response.ok) {
+        fetchTrains();
+        setNewTrain({
+          trainName: '',
+          trainNumber: '',
+          departureTime: {
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+          },
+          seatsavailable: {
+            sleeper: 0,
+            ac: 0,
+          },
+          price: {
+            sleeper: 0,
+            ac: 0,
+          },
+          delayedBy: '',
+        });
+      } else {
+        console.error('Error creating train:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error creating train:', error);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Train Details</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Train Name</th>
+            <th>Train Number</th>
+            <th>Departure Time</th>
+            <th>Seats Available</th>
+            <th>Price</th>
+            <th>Delayed By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trains.map((train) => (
+            <tr key={train.trainNumber}>
+              <td>{train.trainName}</td>
+              <td>{train.trainNumber}</td>
+              <td>{`${train.departureTime.hours}:${train.departureTime.minutes}:${train.departureTime.seconds}`}</td>
+              <td>{`Sleeper: ${train.seatsavailable.sleeper}, AC: ${train.seatsavailable.ac}`}</td>
+              <td>{`Sleeper: ${train.price.sleeper}, AC: ${train.price.ac}`}</td>
+              <td>{train.delayedBy}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h2>Create New Train</h2>
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        createTrain();
+      }}>
+        <label htmlFor="trainName">Train Name:</label>
+        <input
+          type="text"
+          id="trainName"
+          value={newTrain.trainName}
+          onChange={(e) => setNewTrain({ ...newTrain
+          , trainName: e.target.value })}
+        />
+
+        <label htmlFor="trainNumber">Train Number:</label>
+        <input
+          type="text"
+          id="trainNumber"
+          value={newTrain.trainNumber}
+          onChange={(e) => setNewTrain({ ...newTrain, trainNumber: e.target.value })}
+        />
+
+        <label htmlFor="departureTime">Departure Time:</label>
+        <input
+          type="text"
+          id="departureTime"
+          value={newTrain.departureTime.hours}
+          onChange={(e) => setNewTrain({ ...newTrain, departureTime: { ...newTrain.departureTime, hours: e.target.value } })}
+        />
+        <input
+          type="text"
+          value={newTrain.departureTime.minutes}
+          onChange={(e) => setNewTrain({ ...newTrain, departureTime: { ...newTrain.departureTime, minutes: e.target.value } })}
+        />
+        <input
+          type="text"
+          value={newTrain.departureTime.seconds}
+          onChange={(e) => setNewTrain({ ...newTrain, departureTime: { ...newTrain.departureTime, seconds: e.target.value } })}
+        />
+
+        <label htmlFor="seatsSleeper">Seats Available (Sleeper):</label>
+        <input
+          type="text"
+          id="seatsSleeper"
+          value={newTrain.seatsavailable.sleeper}
+          onChange={(e) => setNewTrain({ ...newTrain, seatsavailable: { ...newTrain.seatsavailable, sleeper: e.target.value } })}
+        />
+
+        <label htmlFor="seatsAC">Seats Available (AC):</label>
+        <input
+          type="text"
+          id="seatsAC"
+          value={newTrain.seatsavailable.ac}
+          onChange={(e) => setNewTrain({ ...newTrain, seatsavailable: { ...newTrain.seatsavailable, ac: e.target.value } })}
+        />
+
+        <label htmlFor="priceSleeper">Price (Sleeper):</label>
+        <input
+          type="text"
+          id="priceSleeper"
+          value={newTrain.price.sleeper}
+          onChange={(e) => setNewTrain({ ...newTrain, price: { ...newTrain.price, sleeper: e.target.value } })}
+        />
+
+        <label htmlFor="priceAC">Price (AC):</label>
+        <input
+          type="text"
+          id="priceAC"
+          value={newTrain.price.ac}
+          onChange={(e) => setNewTrain({ ...newTrain, price: { ...newTrain.price, ac: e.target.value } })}
+        />
+
+        <label htmlFor="delayedBy">Delayed By:</label>
+        <input
+          type="text"
+          id="delayedBy"
+          value={newTrain.delayedBy}
+          onChange={(e) => setNewTrain({ ...newTrain, delayedBy: e.target.value })}
+        />
+
+        <button type="submit">Create Train</button>
+      </form>
+    </div>
+  );
+};
